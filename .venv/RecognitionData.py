@@ -31,8 +31,9 @@ def toggle_camera_display():
     else:
         cap.release()
         cap = None
-        camera_label.configure(image='')
-        info_label.config(text="")  # Clear the info when the camera is off
+        if info_label.winfo_exists():  # Check if the info_label still exists
+            info_label.config(text="")  # Clear the info when the camera is off
+        camera_label.configure(image='')  # Clear the image from the camera label
 
 def update_frame():
     recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
@@ -304,7 +305,9 @@ def upload_image():
     camera_label.image = img_tk
 
     # Hiển thị thông tin người dùng
-    info_label.config(text=user_info, anchor="w", justify="left")
+    if info_label.winfo_exists():  # Check if info_label exists before updating it
+        info_label.config(text=user_info, anchor="w", justify="left")
+
 
 
 
