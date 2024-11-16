@@ -60,9 +60,9 @@ while(True):
         cv2.imwrite('dataSet/User.'+str(id)+'.'+str(sampleNum)+'.jpg', gray[y: y+h, x: x+w])
 
     cv2.imshow('frame',frame)
-    cv2.waitKey(10)
+    cv2.waitKey(5)
 
-    if sampleNum > 200:
+    if sampleNum > 100:
         break
 
 cap.release()

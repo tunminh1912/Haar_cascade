@@ -9,20 +9,36 @@ recognizer = cv2.face.LBPHFaceRecognizer_create()
 if os.path.exists('recognizer/trainningData.yml'):
     recognizer.read('recognizer/trainningData.yml')
 
+# Đường dẫn tệp lưu danh sách ID đã huấn luyện
+trained_ids_file = 'recognizer/trained_ids.txt'
+
+# Tạo thư mục "recognizer" nếu chưa tồn tại
+if not os.path.exists('recognizer'):
+    os.makedirs('recognizer')
+
+# Đọc danh sách các ID đã được huấn luyện
+if os.path.exists(trained_ids_file):
+    with open(trained_ids_file, 'r') as f:
+        trained_ids = set(map(int, f.read().splitlines()))
+else:
+    trained_ids = set()
+
 path = 'dataSet'
 
-def getImageWithId(path):
+def getImageWithId(path, trained_ids):
     imagePaths = [os.path.join(path, f) for f in os.listdir(path)]
-
-    # print(imagePaths)
     array_faces = []
     array_IDs = []
+
     for imagePath in imagePaths:
         faceImg = Image.open(imagePath).convert('L')
         faceNp = np.array(faceImg, 'uint8')
-        print(faceNp)
 
-        Id = int(imagePath.split('\\')[1].split('.')[1])
+        Id = int(os.path.basename(imagePath).split('.')[1])  # Sửa lại để hoạt động trên mọi hệ điều hành
+        if Id in trained_ids:
+            print(f"ID {Id} đã được huấn luyện, bỏ qua...")
+            continue
+
         array_faces.append(faceNp)
         array_IDs.append(Id)
 
@@ -31,14 +47,20 @@ def getImageWithId(path):
 
     return array_faces, array_IDs
 
-array_faces, array_IDs = getImageWithId(path)
+array_faces, array_IDs = getImageWithId(path, trained_ids)
 
-# Huấn luyện với các hình ảnh mới
-recognizer.update(array_faces, np.array(array_IDs))
+# Nếu có hình ảnh mới, huấn luyện mô hình
+if array_faces:
+    recognizer.update(array_faces, np.array(array_IDs))
 
-if not os.path.exists('recognizer'):
-    os.makedirs('recognizer')
+    # Lưu lại danh sách các ID đã được huấn luyện
+    trained_ids.update(array_IDs)
+    with open(trained_ids_file, 'w') as f:
+        f.write('\n'.join(map(str, trained_ids)))
 
-recognizer.save('recognizer/trainningData.yml')
+    # Lưu mô hình đã huấn luyện
+    recognizer.save('recognizer/trainningData.yml')
+else:
+    print("Không có hình ảnh mới để huấn luyện.")
 
 cv2.destroyAllWindows()
