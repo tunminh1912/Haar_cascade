@@ -12,8 +12,7 @@ import threading
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
-
+localtime = time.asctime( time.localtime(time.time()) )
 
 def getProfile(id):
     conn = sqlite3.connect('./data.db')
@@ -36,6 +35,7 @@ def toggle_camera_display():
         info_label.config(text="")  # Clear the info when the camera is off
 
 def update_frame():
+    recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
     global cap
     ret, frame = cap.read()
     if not ret:
@@ -54,7 +54,13 @@ def update_frame():
         if confidence < 40:
             profile = getProfile(id)
             if profile is not None:
-                user_info = f"ID: {profile[0]}, Name: {profile[1]}"
+                user_info = (
+                    f"MSSV: {profile[0]}\n"
+                    f"Tên: {profile[1]}\n"
+                    f"Ngày sinh: {profile[2]}\n"
+                    f"Khoa: {profile[3]}\n"
+                    f"Thời gian: {localtime}"
+                )
                 cv2.putText(frame, profile[1], (x + 10, y + h + 30), fontface, 1, (0, 255, 0), 2)
         else:
             cv2.putText(frame, "Unknown", (x + 10, y + h + 30), fontface, 1, (0, 255, 0), 2)
@@ -65,7 +71,7 @@ def update_frame():
     camera_label.configure(image=img_tk)
 
     # Update user info in info_label
-    info_label.config(text=user_info)
+    info_label.config(text=user_info, anchor="w", justify="left")
 
     camera_label.after(10, update_frame)
 
@@ -257,6 +263,7 @@ def get_data_func():
 
 
 def upload_image():
+    recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
     file_path = filedialog.askopenfilename(
         filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.bmp;*.gif")]
     )
@@ -277,7 +284,13 @@ def upload_image():
         if confidence < 40:  # Ngưỡng nhận diện
             profile = getProfile(id)
             if profile is not None:
-                user_info = f"ID: {profile[0]}, Name: {profile[1]}"
+                user_info = (
+                    f"MSSV: {profile[0]}\n"
+                    f"Tên: {profile[1]}\n"
+                    f"Ngày sinh: {profile[2]}\n"
+                    f"Khoa: {profile[3]}\n"
+                    f"Thời gian: {localtime}"
+                )
                 cv2.putText(image, profile[1], (x + 10, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         else:
             cv2.putText(image, "Unknown", (x + 10, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -291,7 +304,7 @@ def upload_image():
     camera_label.image = img_tk
 
     # Hiển thị thông tin người dùng
-    info_label.config(text=user_info)
+    info_label.config(text=user_info, anchor="w", justify="left")
 
 
 
@@ -303,26 +316,26 @@ title_label = tk.Label(window, text="XỬ LÝ ẢNH VÀ THỊ GIÁC MÁY TÍNH",
 title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
 
 left_frame = tk.Frame(window)
-left_frame.grid(row=1, column=0, padx=20, pady=20, sticky="n")
+left_frame.grid(row=1, column=0, padx=20, pady=20, sticky="nsew")
 
 nhom_label = tk.Label(left_frame, text="NHÓM 07", bg="#7ECFF1", fg="white", font=("Arial", 14))
-nhom_label.pack(pady=5)
+nhom_label.pack(pady=5, anchor="w")
 
 get_data_button = tk.Button(left_frame, text="Get data", bg="#90EE90", font=("Arial", 16), command=get_data_func)
-get_data_button.pack(pady=10)
+get_data_button.pack(pady=10, anchor="w")
 
 train_data_button = tk.Button(left_frame, text="Train data", bg="#90EE90", font=("Arial", 16), command=run_train_data)
-train_data_button.pack(pady=10)
+train_data_button.pack(pady=10, anchor="w")
 
 camera_button = tk.Button(left_frame, text="Camera", bg="#90EE90", font=("Arial", 16), command=toggle_camera_display)
-camera_button.pack(pady=10)
+camera_button.pack(pady=10, anchor="w")
 
 upload_button = tk.Button(left_frame, text="Upload", bg="palegreen", font=("Arial", 16), command=upload_image)
-upload_button.pack(pady=10)
+upload_button.pack(pady=10, anchor="w")
 
 # Add user info label below the camera label
 info_label = tk.Label(left_frame, text="", font=("Arial", 12))
-info_label.pack(pady=10)
+info_label.pack(pady=10, anchor="w")
 
 camera_label = tk.Label(window)
 camera_label.grid(row=1, column=1, padx=20, pady=20, sticky="nsew")
