@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import filedialog
 import os
-import time;
+import time
 import threading
 
 # Tải cascade cho nhận diện khuôn mặt
@@ -24,6 +24,7 @@ def getProfile(id):
     return profile
 
 def toggle_camera_display():
+    recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
     global cap
     if cap is None:
         cap = cv2.VideoCapture(0)
@@ -36,7 +37,6 @@ def toggle_camera_display():
         camera_label.configure(image='')  # Clear the image from the camera label
 
 def update_frame():
-    recognizer.read(r'C:\Users\Admin\PycharmProjects\NhanDienKhuonMat\.venv\recognizer\trainningData.yml')
     global cap
     ret, frame = cap.read()
     if not ret:
@@ -74,7 +74,7 @@ def update_frame():
     # Update user info in info_label
     info_label.config(text=user_info, anchor="w", justify="left")
 
-    camera_label.after(10, update_frame)
+    camera_label.after(50, update_frame)
 
 def run_train_data():
     # Kiểm tra xem mô hình đã lưu có tồn tại không
@@ -296,8 +296,12 @@ def upload_image():
         else:
             cv2.putText(image, "Unknown", (x + 10, y + h + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+    # Resize ảnh về kích thước cố định, ví dụ 400x400
+    fixed_size = (600, 400)
+    resized_image = cv2.resize(image, fixed_size)
+
     # Chuyển đổi ảnh sang định dạng Tkinter
-    img = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    img = Image.fromarray(cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB))
     img_tk = ImageTk.PhotoImage(img)
 
     # Hiển thị ảnh trên label
@@ -307,7 +311,6 @@ def upload_image():
     # Hiển thị thông tin người dùng
     if info_label.winfo_exists():  # Check if info_label exists before updating it
         info_label.config(text=user_info, anchor="w", justify="left")
-
 
 
 
